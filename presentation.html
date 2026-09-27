@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RoboLab — Питч-презентация | WIT Teens Challenge 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-page: #f3f6fb;
+      --bg-slide: #ffffff;
+      --text-dark: #1e293b;
+      --text-muted: #52637a;
+      --border-soft: #dce5f2;
+      --pastel-mint-bg: #e6f7f0;
+      --pastel-mint-border: #a7e3c9;
+      --pastel-mint-text: #1b7555;
+      --pastel-blue-bg: #eaf2ff;
+      --pastel-blue-border: #b8d0fc;
+      --pastel-blue-text: #2b57c7;
+      --pastel-lavender-bg: #f2edff;
+      --pastel-lavender-border: #d0bfff;
+      --pastel-lavender-text: #5f3dc4;
+      --pastel-peach-bg: #fff1e8;
+      --pastel-peach-border: #fcc9a7;
+      --pastel-peach-text: #c25019;
+      --pastel-rose-bg: #ffefef;
+      --pastel-rose-border: #f8b4b4;
+      --pastel-rose-text: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 15% 15%, #e8f0fe 0%, #f3f6fb 50%, #ebf7f2 100%);
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Верхняя панель управления презентацией */
+    .deck-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-soft);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 16px rgba(30, 41, 59, 0.04);
+    }
+
+    .deck-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 16px;
+      color: var(--text-dark);
+    }
+
+    .deck-badge {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: var(--pastel-lavender-bg);
+      color: var(--pastel-lavender-text);
+      border: 1px solid var(--pastel-lavender-border);
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .ctrl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: 10px;
+      border: 1px solid var(--border-soft);
+      background: #ffffff;
+      color: var(--text-dark);
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+
+    .ctrl-btn:hover {
+      background: var(--pastel-blue-bg);
+      border-color: var(--pastel-blue-border);
+      color: var(--pastel-blue-text);
+    }
+
+    .ctrl-btn.primary {
+      background: linear-gradient(135deg, #4f6ef7, #38b28b);
+      color: #ffffff;
+      border: none;
+    }
+
+    .ctrl-btn.active-note {
+      background: var(--pastel-mint-bg);
+      border-color: var(--pastel-mint-border);
+      color: var(--pastel-mint-text);
+    }
+
+    .pitch-timer-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: var(--pastel-peach-bg);
+      border: 1px solid var(--pastel-peach-border);
+      color: var(--pastel-peach-text);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    /* Основная сцена со слайдом и шпаргалкой спикера */
+    .deck-stage {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 22px 24px 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .slide-card {
+      display: none;
+      background: var(--bg-slide);
+      border: 1.5px solid var(--border-soft);
+      border-radius: 24px;
+      padding: 36px 42px;
+      min-height: 540px;
+      box-shadow: 0 18px 45px rgba(30, 41, 59, 0.06);
+      position: relative;
+      overflow: hidden;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .slide-card.active {
+      display: flex;
+      animation: slideFade 0.24s ease-out;
+    }
+
+    @keyframes slideFade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Декоративные пастельные пятна внутри слайда */
+    .slide-card::before {
+      content: "";
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(155, 124, 246, 0.12), transparent 70%);
+      pointer-events: none;
+    }
+
+    .slide-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .slide-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: 99px;
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .kicker-blue { background: var(--pastel-blue-bg); color: var(--pastel-blue-text); border: 1px solid var(--pastel-blue-border); }
+    .kicker-mint { background: var(--pastel-mint-bg); color: var(--pastel-mint-text); border: 1px solid var(--pastel-mint-border); }
+    .kicker-lavender { background: var(--pastel-lavender-bg); color: var(--pastel-lavender-text); border: 1px solid var(--pastel-lavender-border); }
+    .kicker-peach { background: var(--pastel-peach-bg); color: var(--pastel-peach-text); border: 1px solid var(--pastel-peach-border); }
+
+    .slide-score-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: #f8fafd;
+      border: 1px solid var(--border-soft);
+      padding: 4px 11px;
+      border-radius: 99px;
+    }
+
+    .slide-title {
+      font-size: clamp(24px, 2.6vw, 34px);
+      font-weight: 900;
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .slide-title span.grad {
+      background: linear-gradient(135deg, #4263eb 0%, #2eb886 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .slide-subtitle {
+      font-size: 15px;
+      line-height: 1.55;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+      max-width: 880px;
+    }
+
+    /* Сетки контента внутри слайдов */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 960px) {
+      .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+      .slide-card {
+        padding: 24px 20px;
+      }
+    }
+
+    .p-card {
+      background: #f9fbfe;
+      border: 1.5px solid var(--border-soft);
+      border-radius: 18px;
+      padding: 18px 20px;
+    }
+
+    .p-card.mint { background: var(--pastel-mint-bg); border-color: var(--pastel-mint-border); }
+    .p-card.blue { background: var(--pastel-blue-bg); border-color: var(--pastel-blue-border); }
+    .p-card.lavender { background: var(--pastel-lavender-bg); border-color: var(--pastel-lavender-border); }
+    .p-card.peach { background: var(--pastel-peach-bg); border-color: var(--pastel-peach-border); }
+    .p-card.rose { background: var(--pastel-rose-bg); border-color: var(--pastel-rose-border); }
+
+    .p-card h3 {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      color: var(--text-dark);
+    }
+
+    .p-card p {
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .stat-big {
+      font-size: 30px;
+      font-weight: 900;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 4px;
+      color: var(--text-dark);
+    }
+
+    .slide-img-frame {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1.5px solid var(--border-soft);
+      box-shadow: 0 10px 28px rgba(30, 41, 59, 0.07);
+      background: #ffffff;
+    }
+
+    .slide-img-frame img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Диаграммы и графики в пастельных тонах */
+    .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .bar-row {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .bar-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    .bar-track {
+      height: 14px;
+      background: #edf2f9;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 99px;
+    }
+
+    /* Таблица сравнения с конкурентами */
+    .comp-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1.5px solid var(--border-soft);
+      border-radius: 16px;
+      overflow: hidden;
+      font-size: 13px;
+    }
+
+    .comp-table th, .comp-table td {
+      padding: 11px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .comp-table th {
+      background: #f1f5fb;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .comp-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comp-table td.highlight-col, .comp-table th.highlight-col {
+      background: var(--pastel-mint-bg);
+      font-weight: 800;
+      color: var(--pastel-mint-text);
+    }
+
+    /* Блок «Шпаргалка для питча» (Speaker Notes) под слайдом */
+    .speaker-box {
+      background: #ffffff;
+      border: 2px solid #b8d0fc;
+      border-left: 6px solid #4263eb;
+      border-radius: 18px;
+      padding: 18px 22px;
+      box-shadow: 0 8px 24px rgba(66, 99, 235, 0.07);
+    }
+
+    .speaker-box.hidden {
+      display: none;
+    }
+
+    .speaker-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .speaker-badge {
+      font-size: 11.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #2b57c7;
+      background: #eaf2ff;
+      padding: 4px 10px;
+      border-radius: 99px;
+    }
+
+    .speaker-time {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: #c25019;
+      background: #fff1e8;
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+
+    .speaker-script {
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: #1e293b;
+    }
+
+    .speaker-script strong {
+      color: #2b57c7;
+      background: #f0f5ff;
+      padding: 0 4px;
+      border-radius: 4px;
+    }
+
+    /* Точки быстрого переключения слайдов */
+    .slide-dots-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .dot-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      border: 1px solid var(--border-soft);
+      background: #ffffff;
+      color: var(--text-muted);
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .dot-btn.active {
+      background: #4263eb;
+      color: #ffffff;
+      border-color: #4263eb;
+      transform: scale(1.06);
+    }
+
+    .slide-footer-meta {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px solid #edf2f9;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Печать всех слайдов в PDF для отправки в Google Форму */
+    @media print {
+      body { background: #ffffff; }
+      .deck-topbar, .slide-dots-nav, .speaker-box { display: none !important; }
+      .deck-stage { max-width: 100%; padding: 0; }
+      .slide-card {
+        display: flex !important;
+        page-break-after: always;
+        break-after: page;
+        box-shadow: none;
+        border: 1px solid #cbd5e1;
+        margin-bottom: 16px;
+        min-height: 92vh;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Панель управления презентацией -->
+  <header class="deck-topbar">
+    <div class="deck-brand">
+      <a href="./index.html" class="ctrl-btn" title="Вернуться на сайт RoboLab">← На сайт RoboLab</a>
+      <span>RoboLab Pitch Deck</span>
+      <span class="deck-badge">WIT Teens Challenge 2026</span>
+    </div>
+
+    <div class="deck-controls">
+      <div class="pitch-timer-box" id="pitchTimerBtn" title="Нажмите для запуска/сброса 4-минутного таймера защиты">
+        <span>⏱ Таймер питча:</span>
+        <span id="pitchTimerReadout">04:00</span>
+      </div>
+      <button type="button" class="ctrl-btn active-note" id="toggleSpeakerBtn">
+        🎙️ Шпаргалка спикера: ВКЛ
+      </button>
+      <button type="button" class="ctrl-btn" id="prevSlideBtn">← Пред.</button>
+      <span id="slideCounterLabel" style="font-size:12.5px; font-weight:800; padding:0 6px;">1 / 10</span>
+      <button type="button" class="ctrl-btn" id="nextSlideBtn">След. →</button>
+      <button type="button" class="ctrl-btn primary" id="printPdfBtn" title="Сохранить презентацию в PDF для Google Формы">
+        🖨️ Сохранить в PDF
+      </button>
+    </div>
+  </header>
+
+  <main class="deck-stage">
+
+    <!-- ==================== СЛАЙД 1: ТИТУЛЬНЫЙ ==================== -->
+    <section class="slide-card active" data-slide="0" data-time="0:00 – 0:25 (25 сек)" data-script="Здравствуйте, уважаемое жюри <strong>WIT Teens Challenge 2026</strong>! Мы представляем проект <strong>RoboLab</strong> в рамках кейса <strong>«STEM без сложного оборудования»</strong>. Наша миссия — дать каждому школьнику в Казахстане, от мегаполисов до самых отдалённых сёл, собственную интерактивную лабораторию робототехники, микроконтроллеров и программирования прямо в браузере.">
+      <div>
+        <div class="slide-header">
+          <span class="slide-kicker kicker-lavender">WIT Teens Challenge 2026 • Кейс «STEM без сложного оборудования»</span>
+          <span class="slide-score-tag">Слайд 1 из 10 • Приветствие</span>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <h1 class="slide-title">
+              <span class="grad">RoboLab</span> — виртуальная STEM-лаборатория в каждом браузере
+            </h1>
+            <p class="slide-subtitle">
+              Интерактивный 2D-симулятор микроконтроллеров <strong>Arduino, ESP32 и Raspberry Pi Pico</strong> со встроенным расчётом физических законов цепи, ИИ-наставником и игровым практикумом — без закупки дорогостоящего оборудования.
+            </p>
+
+            <div class="grid-3" style="margin-bottom: 18px;">
+              <div class="p-card mint">
+                <div class="stat-big">0 ₸</div>
+                <p>Затраты школы на закупку радиодеталей и плат</p>
+              </div>
+              <div class="p-card blue">
+                <div class="stat-big">5 плат</div>
+                <p>Uno R3, Nano, Mega, ESP32 и Raspberry Pi Pico</p>
+              </div>
+              <div class="p-card lavender">
+                <div class="stat-big">24/7</div>
+                <p>AI-диагностика ошибок и защита от КЗ</p>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <a href="./index.html" class="ctrl-btn primary" style="padding:10px 18px;">▶ Открыть рабочий MVP</a>
+              <span class="ctrl-btn" style="background:#f8fafd;">Капитан команды: девушка-лидер STEM</span>
+            </div>
+          </div>
+
+          <div class="slide-img-frame">
+            <img src="./assets/robolab_pastel_hero.jpg" alt="RoboLab Виртуальная STEM-лаборатория" />
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer-meta">
+        <span>RoboLab • Виртуальная лаборатория схемотехники и робототехники</span>
+        <span>Навигация: клавиши ← / →</span>
+      </div>
+    </section>
+
+    <!-- ==================== СЛАЙД 2: ПРОБЛЕМА И АУДИТОРИЯ ==================== -->
+    <section class="slide-card" data-slide="1" data-time="0:25 – 0:55 (30 сек)" data-script="Почему мы взялись за эту задачу? В Казахстане более <strong>7 800 школ</strong>, и более половины из них находятся в малых городах и сёлах. Оснастить один STEM-кабинет стоит от <strong>1.8 млн тенге</strong>. Но даже там, где наборы есть, ученики боятся экспериментировать: одно неверное подключение — и плата Arduino сгорает за долю секунды. В итоге физику и программирование учат по учебнику в теории, без реальной практики.">
+      <div>
+        <div class="slide-header">
+          <span class="slide-kicker kicker-peach">1. Понимание проблемы и ЦА</span>
+          <span class="slide-score-tag">Критерий жюри: 15 баллов</span>
+        </div>
+
+        <h2 class="slide-title">Почему школьники учат STEM <span class="grad">«в теории на бумаге»</span>?</h2>
+        <p class="slide-subtitle">
+          Острый разрыв между городскими лицеями и школами в регионах и сёлах из-за стоимости оборудования и страха поломки радиодеталей.
+        </p>
+
+        <div class="grid-2">
+          <div class="grid-3" style="grid-template-columns: 1fr; gap: 12px;">
+            <div class="p-card rose">
+              <h3>💸 Высокий финансовый барьер ($3 500+ на класс)</h3>
+              <p>Полный комплект плат Arduino, ESP32, датчиков, сервоприводов и расходников недоступен для большинства сельских и малых школ.</p>
+            </div>
+            <div class="p-card peach">
+              <h3>⚡ Страх ошибки и выгорания компонентов</h3>
+              <p>Подключение светодиода без резистора или короткое замыкание 5V на GND мгновенно сжигает реальную плату — учитель боится давать наборы детям.</p>
+            </div>
+            <div class="p-card lavender">
+              <h3>👩‍🏫 Дефицит профильных менторов по робототехнике</h3>
+              <p>В 1 классе до 30 учеников: один учитель физически не успевает проверить каждую макетную плату и найти неправильный провод.</p>
+            </div>
+          </div>
+
+          <div class="p-card">
+            <h3>📊 Сравнение доступности практики STEM для школьников</h3>
+            <div class="bar-chart">
+              <div class="bar-row">
+                <div class="bar-label-row">
+                  <span>Сельские и малые школы с полным комплектом робототехники</span>
+                  <span style="color:#b91c1c;">~18%</span>
+                </div>
+                <div class="bar-track"><div class="bar-fill" style="width:18%; background:#f87171;"></div></div>
+              </div>
+
+              <div class="bar-row">
+                <div class="bar-label-row">
+                  <span>Ученики, боящиеся спалить плату при первом эксперименте</span>
+                  <span style="color:#c25019;">74%</span>
+                </div>
+                <div class="bar-track"><div class="bar-fill" style="width:74%; background:#fb923c;"></div></div>
+              </div>
+
+              <div class="bar-row">
+                <div class="bar-label-row">
+                  <span>Школы с базовым доступом к браузеру / ПК (потенциал RoboLab)</span>
+                  <span style="color:#1b7555;">96%</span>
+                </div>
+                <div class="bar-track"><div class="bar-fill" style="width:96%; background:#38b28b;"></div></div>
+              </div>
+            </div>
+
+            <div style="margin-top: 18px; padding: 12px; border-radius: 12px; background: #eef3ff; font-size: 13px; color: #2b57c7; font-weight: 600;">
+              💡 Вывод: Компьютер или ноутбук уже есть почти в каждой школе — не хватает безопасной виртуальной среды для экспериментов!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer-meta">
+        <span>Слайд 2 • Проблема и целевая аудитория (школьники 11–18 лет, учителя физики и информатики)</span>
+        <span>RoboLab</span>
+      </div>
+    </section>
+
+    <!-- ==================== СЛАЙД 3: НАШЕ РЕШЕНИЕ ==================== -->
+    <section class="slide-card" data-slide="2" data-time="0:55 – 1:25 (30 сек)" data-script="Наше решение — веб-платформа <strong>RoboLab</strong>, которая объединяет три ключевых инструмента в одном окне браузера: во-первых, <strong>визуальный 2D-симулятор схем и редактор кода C++</strong>; во-вторых, <strong>персонального AI Наставника</strong>, который находит ошибки в цепи; и в-третьих, <strong>интерактивный Практикум</strong> с пошаговыми тренажёрами от первого светодиода до ультразвукового радара.">
+      <div>
+        <div class="slide-header">
+          <span class="slide-kicker kicker-mint">2. Качество решения и архитектура продукта</span>
+          <span class="slide-score-tag">Критерий жюри: 20 баллов</span>
+        </div>
+
+        <h2 class="slide-title">Экосистема <span class="grad">RoboLab</span>: 3 модуля в одном браузере</h2>
+        <p class="slide-subtitle">
+          Работает мгновенно по ссылке без установки тяжёлых программ — одинаково доступно в мегаполисе и сельской школе.
+        </p>
+
+        <div class="grid-2">
+          <div class="slide-img-frame">
+            <img src="./assets/robolab_stem_impact.jpg" alt="Облачная STEM-лаборатория для города и села" />
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div class="p-card blue">
+              <h3>1. Симулятор микроконтроллеров + C++ IDE</h3>
+              <p>Интерактивный холст с детализированными платами (Arduino Uno R3, Nano, Mega, ESP32, Pi Pico), умной трассировкой проводов, подсветкой кода и Serial-монитором.</p>
+            </div>
+            <div class="p-card lavender">
+              <h3>2. Интеллектуальный «AI Наставник RoboLab»</h3>
+              <p>Проверяет схему в реальном времени, объясняет физику процесса простым языком и подсказывает, почему не горит светодиод или не крутится сервопривод.</p>
+            </div>
+            <div class="p-card mint">
+              <h3>3. Пошаговый «Практикум» (Учёба через игру)</h3>
+              <p>Дорожка интерактивных уровней: сборка на мини-макетке, коммутация пинов, составление кода C++ из блоков и прокачка виртуального робота-напарника.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer-meta">
+        <span>Слайд 3 • Комплексное решение задачи «STEM без сложного оборудования»</span>
+        <span>RoboLab</span>
+      </div>
+    </section>
+
+    <!-- ==================== СЛАЙД 4: УЧИТЬСЯ ЧЕРЕЗ ЭКСПЕРИМЕНТ И ОШИБКИ ==================== -->
+    <section class="slide-card" data-slide="3" data-time="1:25 – 1:55 (30 сек)" data-script="Главное требование кейса — <strong>учиться через эксперимент: пробовать, ошибаться и видеть результат своих действий</strong>. В RoboLab работает честный физический движок по Закону Ома! Если школьник забудет поставить резистор 220 Ом перед светодиодом, ток превысит 30 миллиампер — на экране появится <strong>анимация перегорания и дыма</strong>, но вместо испорченной детали за 3 000 тенге AI Наставник объяснит, как исправить схему за один клик!">
+      <div>
+        <div class="slide-header">
+          <span class="slide-kicker kicker-blue">3. Пользовательская ценность • Учёба через эксперимент</span>
+          <span class="slide-score-tag">Критерий жюри: 15 баллов</span>
+        </div>
+
+        <h2 class="slide-title">Безопасное право на ошибку: <span class="grad">Закон Ома вживую</span></h2>
+        <p class="slide-subtitle">
+          Школьник не просто смотрит анимацию — он меняет сопротивление, полярность и пины, наблюдая реальный физический отклик цепи.
+        </p>
+
+        <!-- Наглядная векторная диаграмма сравнения безопасного и аварийного режима -->
+        <div class="grid-2">
+          <div class="p-card rose">
+            <h3>🔥 Эксперимент №1: Ошибка (Без резистора / КЗ)</h3>
+            <svg viewBox="0 0 420 130" width="100%" style="margin: 10px 0; background:#ffffff; border-radius:12px; border:1px solid #fecaca;">
+              <rect x="16" y="32" width="90" height="66" rx="8" fill="#00727A" />
+              <text x="28" y="62" fill="#fff" font-size="11" font-weight="bold">Arduino Uno</text>
+              <text x="28" y="78" fill="#a7f3d0" font-size="10">Pin D13 (5V)</text>
+              <path d="M 106 50 L 245 50" stroke="#ef4444" stroke-width="3.5" stroke-dasharray="6 4"/>
+              <text x="132" y="42" fill="#dc2626" font-size="10" font-weight="bold">Прямой провод 0 Ом (I &gt; 50 мА!)</text>
+              <circle cx="275" cy="65" r="24" fill="#fee2e2" stroke="#dc2626" stroke-width="2.5"/>
+              <text x="262" y="70" font-size="18">💥</text>
+              <text x="312" y="58" fill="#991b1b" font-size="11" font-weight="bold">Перегорание LED!</text>
+              <text x="312" y="76" fill="#b91c1c" font-size="10">Дым + Разбор от ИИ</text>
+              <path d="M 245 80 L 106 80" stroke="#3b82f6" stroke-width="3"/>
+            </svg>
+            <p><strong>Что видит ученик:</strong> Визуальный эффект перегрузки, предупреждение в статусной строке и точный расчёт от AI Наставника, почему кристалл светодиода сгорел.</p>
+          </div>
+
+          <div class="p-card mint">
+            <h3>✅ Эксперимент №2: Верный расчёт (Резистор 220 Ом)</h3>
+            <svg viewBox="0 0 420 130" width="100%" style="margin: 10px 0; background:#ffffff; border-radius:12px; border:1px solid #a7e3c9;">
+              <rect x="16" y="32" width="90" height="66" rx="8" fill="#00727A" />
+              <text x="28" y="62" fill="#fff" font-size="11" font-weight="bold">Arduino Uno</text>
+              <text x="28" y="78" fill="#a7f3d0" font-size="10">Pin D13 (5V)</text>
+              <path d="M 106 50 L 145 50" stroke="#ef4444" stroke-width="3"/>
+              <rect x="145" y="40" width="66" height="20" rx="5" fill="#f6d59e" stroke="#b4833e" stroke-width="1.5"/>
+              <text x="156" y="54" fill="#78350f" font-size="10" font-weight="bold">220 Ω</text>
+              <path d="M 211 50 L 250 50" stroke="#10b981" stroke-width="3"/>
+              <circle cx="275" cy="65" r="24" fill="#d1fae5" stroke="#10b981" stroke-width="2.5"/>
+              <text x="265" y="71" font-size="18">💡</text>
+              <text x="310" y="58" fill="#065f46" font-size="11" font-weight="bold">Ток: 13.6 мА (Норма)</text>
+              <text x="310" y="76" fill="#047857" font-size="10">Яркое свечение 100%</text>
+              <path d="M 250 80 L 106 80" stroke="#3b82f6" stroke-width="3"/>
+            </svg>
+            <p><strong>Формула движка:</strong> $I = (5\text{V} - 2.0\text{V}) / 220\,\Omega = 13.6\text{ мА}$. Школьник на практике понимает, зачем в цепи нужен резистор и общая земля `GND`.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer-meta">
+        <span>Слайд 4 • Интерактивность и обучение через безопасный эксперимент</span>
+        <span>RoboLab</span>
+      </div>
+    </section>
+
+    <!-- ==================== СЛАЙД 5: АРХИТЕКТУРА И ТЕХНОЛОГИИ ==================== -->
+    <section class="slide-card" data-slide="4" data-time="1:55 – 2:20 (25 сек)" data-script="С технической стороны <strong>RoboLab</strong> построен как сверхбыстрое модульное веб-приложение на чистом <strong>JavaScript, SVG-векторном рендеринге и собственном физическом движке</strong>. Почему это важно для сельских школ? Платформа весит менее 200 килобайт, не требует мощных видеокарт и работает полностью автономно прямо в браузере даже при слабом мобильном интернете!">
+      <div>
+        <div class="slide-header">
+          <span class="slide-kicker kicker-lavender">4. Использование данных и технологий</span>
+          <span class="slide-score-tag">Критерий жюри: 10 баллов</span>
+        </div>
+
+        <h2 class="slide-title">Как устроен движок <span class="grad">RoboLab</span> изнутри?</h2>
+        <p class="slide-subtitle">
+          100% вычислений выполняется прямо в браузере клиента (Zero-Latency Client Engine) — мгновенный отклик без нагрузки на сервер.
+        </p>
+
+        <!-- Архитектурная схема пайплайна в SVG -->
+        <div class="p-card" style="margin-bottom: 16px; background: #ffffff;">
+          <svg viewBox="0 0 980 145" width="100%">
+            <!-- Блок 1 -->
+            <rect x="10" y="20" width="175" height="105" rx="14" fill="#eaf2ff" stroke="#93c5fd" stroke-width="2"/>
+            <text x="26" y="48" fill="#1e40af" font-size="12" font-weight="bold">1. SVG Hardware View</text>
+            <text x="26" y="68" fill="#475569" font-size="10.5">• 16 моделей плат и датчиков</text>
+            <text x="26" y="85" fill="#475569" font-size="10.5">• Координатная сетка пинов</text>
+            <text x="26" y="102" fill="#475569" font-size="10.5">• Кривые Безье для проводов</text>
+
+            <path d="M 188 72 L 212 72" stroke="#64748b" stroke-width="2.5" marker-end="url(#arr)"/>
+
+            <!-- Блок 2 -->
+            <rect x="215" y="20" width="180" height="105" rx="14" fill="#e6f7f0" stroke="#6ee7b7" stroke-width="2"/>
+            <text x="230" y="48" fill="#065f46" font-size="12" font-weight="bold">2. Circuit Graph Solver</text>
+            <text x="230" y="68" fill="#475569" font-size="10.5">• Обход графа соединений</text>
+            <text x="230" y="85" fill="#475569" font-size="10.5">• Расчёт токов по Закону Ома</text>
+            <text x="230" y="102" fill="#475569" font-size="10.5">• Детекция КЗ (5V → GND)</text>
+
+            <path d="M 398 72 L 422 72" stroke="#64748b" stroke-width="2.5"/>
+
+            <!-- Блок 3 -->
+            <rect x="425" y="20" width="180" height="105" rx="14" fill="#fff1e8" stroke="#fdba74" stroke-width="2"/>
+            <text x="440" y="48" fill="#9a3412" font-size="12" font-weight="bold">3. C++ AST Interpreter</text>
+            <text x="440" y="68" fill="#475569" font-size="10.5">• Парсинг setup() и loop()</text>
+            <text x="440" y="85" fill="#475569" font-size="10.5">• digitalWrite / analogRead / PWM</text>
+            <text x="440" y="102" fill="#475569" font-size="10.5">• Эмуляция Servo, LCD и Sonar</text>
+
+            <path d="M 608 72 L 632 72" stroke="#64748b" stroke-width="2.5"/>
+
+            <!-- Блок 4 -->
+            <rect x="635" y="20" width="170" height="105" rx="14" fill="#f2edff" stroke="#c4b5fd" stroke-width="2"/>
+            <text x="650" y="48" fill="#5b21b6" font-size="12" font-weight="bold">4. AI Diagnostic Engine</text>
+            <text x="650" y="68" fill="#475569" font-size="10.5">• Сопоставление кода и пинов</text>
+            <text x="650" y="85" fill="#475569" font-size="10.5">• База типичных ошибок STEM</text>
+            <text x="650" y="102" fill="#475569" font-size="10.5">• Диалоговый чат-помощник</text>
+
+            <path d="M 808 72 L 828 72" stroke="#64748b" stroke-width="2.5"/>
+
+            <!-- Блок 5 -->
+            <rect x="830" y="20" width="140" height="105" rx="14" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>
+            <text x="844" y="48" fill="#1e293b" font-size="12" font-weight="bold">5. Cloud &amp; Auth</text>
+            <text x="844" y="68" fill="#475569" font-size="10.5">• Google OAuth 2.0</text>
+            <text x="844" y="85" fill="#475569" font-size="10.5">• 2FA OTP по Email</text>
+            <text x="844" y="102" fill="#475569" font-size="10.5">• Автосохранение</text>
+          </svg>
+        </div>
+
+        <div class="grid-3">
+          <div class="p-card blue">
+            <h3>⚡ Мгновенная загрузка (&lt; 0.5 сек)</h3>
+            <p>Чистый модульный стек без тяжёлых 3D-движков позволяет работать даже на школьных нетбуках 10-летней давности.</p>
+          </div>
+          <div class="p-card mint">
+            <h3>🔌 Честная проверка топологии цепи</h3>
+            <p>Алгоритм графа проверяет замкнутость контура, наличие общей земли `GND`, номиналы резисторов и соответствие пинов в коде C++.</p>
+          </div>
+          <div class="p-card lavender">
+            <h3>🔒 Безопасность и верификация</h3>
+            <p>Двухфакторное подтверждение регистрации по 6-значному OTP-коду, вход через Google и мгновенный Демо-режим для жюри.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer-meta">
+        <span>Слайд 5 • Технологический стек: модульный Vanilla JS, SVG Engine, Circuit Graph Solver, Web Audio API</span>
+        <span>RoboLab</span>
+      </div>
+    </section>
+
+    <!-- ==================== СЛАЙД 6: МОДУЛЬ «ПРАКТИКУМ» ==================== -->
+    <section class="slide-card" data-slide="5" data-time="2:20 – 2:45 (25 сек)" data-script="Чтобы новичок не растерялся перед чистым холстом, мы создали раздел <strong>«Практикум»</strong>. Это пошаговая карта навыков с 3D-уровнями, где школьник проходит путь от Закона Ома до управления сервоприводом и ультразвуковым сонаром. Вместо скучных тестов — три интерактивные механики, индикатор заряда аккумулятора вместо «жизней» и прокачка собственного робота-напарника!">
+      <div>
+        <div class="slide-header">
+          <span class="slide-kicker kicker-mint">5. Геймификация обучения • Модуль «Практикум»</span>
+          <span class="slide-score-tag">Вовлечение и удержание учеников</span>
+        </div>
+
+        <h2 class="slide-title">Интерактивный <span class="grad">«Практикум»</span>: от нуля до первой схемы за 10 минут</h2>
+        <p class="slide-subtitle">
+          Увлекательная игровая механика превращает сложную схемотехнику в понятный квест с мгновенной обратной связью.
+        </p>
+
+        <div class="grid-3" style="margin-bottom: 16px;">
+          <div class="p-card mint">
+            <h3>🛠️ 1. Сборка на мини-макетке</h3>
+            <p>Ученик выбирает радиодетали из банка и ставит их в разрыв цепи. Если поставить прямую перемычку вместо резистора — сработает детектор КЗ!</p>
+          </div>
+          <div class="p-card blue">
+            <h3>🔌 2. Коммутация выводов МК</h3>
+            <p>Интерактивное соединение пинов датчиков (`VCC`, `TRIG`, `ECHO`, `GND`) с ответными портами платы Arduino Uno.</p>
+          </div>
+          <div class="p-card lavender">
+            <h3>💻 3. Сборка прошивки C++</h3>
+            <p>Составление реального скетча Arduino (`pinMode`, `digitalWrite`, `pulseIn`, `Servo.write`) из интерактивных блоков кода.</p>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="p-card peach">
+            <h3>🔋 Заряд АКБ вместо «жизней»</h3>
+            <p>Каждое короткое замыкание разряжает виртуальный аккумулятор — это приучает проверять полярность перед подачей питания.</p>
+          </div>
+          <div class="p-card">
+            <h3>🤖 Прокачка робота-напарника</h3>
+            <p>За успешную сборку схем начисляются «Вольты ⚙️», на которые ученик открывает кибер-визор, антенну телеметрии и плазменное ядро.</p>
+          </div>
+          <div class="p-card">
+            <h3>🏆 Ежедневные квесты и Лига</h3>
+            <p>Квесты «Собрать цепь без КЗ» и таблица лидеров мотивируют школьников из разных регионов соревноваться в инженерных навыках.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer-meta">
+        <span>Слайд 6 • Образовательная траектория и геймификация без визуального шума</span>
+        <span>RoboLab</span>
+      </div>
+    </section>
+
+    <!-- ==================== СЛАЙД 7: КОНКУРЕНТНЫЙ АНАЛИЗ ==================== -->
+    <section class="slide-card" data-slide="6" data-time="2:45 – 3:05 (20 сек)" data-script="Чем <strong>RoboLab</strong> отличается от существующих решений, таких как Tinkercad или Wokwi? Зарубежные симуляторы требуют хорошего знания английского языка, не объясняют школьнику причину ошибки и не дают пошаговой игровой траектории. RoboLab объединяет <strong>детализированный симулятор, русскоязычного AI Наставника и геймифицированный Практикум</strong> в одном месте.">
+      <div>
+        <div class="slide-header">
+          <span class="slide-kicker kicker-blue">6. Новизна и конкурентные преимущества</span>
+          <span class="slide-score-tag">Критерий жюри: 10 баллов</span>
+        </div>
+
+        <h2 class="slide-title">Почему школы и ученики выбирают <span class="grad">RoboLab</span>?</h2>
+        <p class="slide-subtitle">
+          Сравнение с зарубежными песочницами и традиционными физическими наборами робототехники.
+        </p>
+
+        <table class="comp-table">
+          <thead>
+            <tr>
+              <th>Критерий сравнения</th>
+              <th class="highlight-col">🚀 RoboLab (Наше решение)</th>
+              <th>Tinkercad Circuits</th>
+              <th>Wokwi Simulator</th>
+              <th>Физические наборы</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Стоимость для школы / ученика</strong></td>
+              <td class="highlight-col">Бесплатно (0 ₸ старт)</td>
+              <td>Бесплатно</td>
+              <td>Freemium ($7/мес)</td>
+              <td>От 45 000 ₸ за 1 набор</td>
+            </tr>
+            <tr>
+              <td><strong>Встроенный AI Наставник (разбор багов цепи)</strong></td>
+              <td class="highlight-col">✅ Да (чат + авто-диагностика)</td>
+              <td>❌ Нет</td>
+              <td>❌ Только платный AI</td>
+              <td>❌ Только учитель</td>
+            </tr>
+            <tr>
+              <td><strong>Пошаговый игровой «Практикум» с нуля</strong></td>
+              <td class="highlight-col">✅ Да (дорожка уровней + квесты)</td>
+              <td>❌ Только пустой холст</td>
+              <td>❌ Нет (для профи)</td>
+              <td>⚠️ Бумажные методички</td>
+            </tr>
+            <tr>
+              <td><strong>Наглядная физика КЗ и сгорания без резистора</strong></td>
+              <td class="highlight-col">✅ Да (дым + расчёт тока мА)</td>
+              <td>⚠️ Малозаметный значок</td>
+              <td>❌ Игнорирует номинал R</td>
+              <td>💥 Деталь сгорает навсегда</td>
+            </tr>
+            <tr>
+              <td><strong>Работа на слабых школьных ПК и локализация</strong></td>
+              <td class="highlight-col">✅ Легковесный SVG (RU/KZ)</td>
+              <td>⚠️ Тяжёлый 3D/WebGL</td>
+              <td>⚠️ Англоязычный</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="slide-footer-meta">
+        <span>Слайд 7 • Уникальное сочетание симулятора, ИИ-диагностики и игрового курса</span>
+        <span>RoboLab</span>
+      </div>
+    </section>
+
+    <!-- ==================== СЛАЙД 8: ЭФФЕКТ, МАСШТАБИРОВАНИЕ И БИЗНЕС-МОДЕЛЬ ==================== -->
+    <section class="slide-card" data-slide="7" data-time="3:05 – 3:30 (25 сек)" data-script="Потенциал масштабирования <strong>RoboLab</strong> огромен. Только в Казахстане целевой рынок — это <strong>7 800 школ и 3.8 миллиона учеников</strong>, а в странах Центральной Азии — более 22 тысяч школ. Наша модель устойчива: базовый тренажёр и симулятор <strong>всегда бесплатны для каждого школьника</strong>, а монетизация строится на B2B и B2G подписках для школ и кружков с панелью учителя и аналитикой класса.">
+      <div>
+        <div class="slide-header">
+          <span class="slide-kicker kicker-mint">7. Эффект, масштабирование и бизнес-модель</span>
+          <span class="slide-score-tag">Критерий жюри: 15 баллов</span>
+        </div>
+
+        <h2 class="slide-title">Масштабирование на <span class="grad">весь Казахстан и СНГ</span></h2>
+        <p class="slide-subtitle">
+          От одного сельского класса до национальной облачной платформы практического STEM-образования.
+        </p>
+
+        <div class="grid-2">
+          <div class="grid-3" style="grid-template-columns: 1fr; gap: 10px;">
+            <div class="p-card blue">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>🌍 TAM — Центральная Азия и СНГ</h3>
+                <span class="stat-big" style="font-size:20px; color:#2b57c7;">22 000+ школ</span>
+              </div>
+              <p>Более 12 млн школьников, нуждающихся в доступных цифровых лабораториях физики и робототехники.</p>
+            </div>
+
+            <div class="p-card lavender">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>🇰🇿 SAM — Школы и STEM-центры РК</h3>
+                <span class="stat-big" style="font-size:20px; color:#5f3dc4;">7 800+ школ</span>
+              </div>
+              <p>3.8 млн учащихся в Казахстане, включая 5 200+ сельских и малых школ без полного комплекта оборудования.</p>
+            </div>
+
+            <div class="p-card mint">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>🎯 SOM — Цель на первые 12 месяцев</h3>
+                <span class="stat-big" style="font-size:20px; color:#1b7555;">150 школ • 25 000 детей</span>
+              </div>
+              <p>Пилотное внедрение через конкурсы робототехники, IT-хабы и школьные кружки информатики.</p>
+            </div>
+          </div>
+
+          <div class="p-card peach">
+            <h3>💼 Социально-устойчивая модель (Freemium + B2B/B2G)</h3>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+              <div style="background:#ffffff; padding:11px 14px; border-radius:12px; border:1px solid var(--pastel-peach-border);">
+                <strong style="color:#1b7555;">1. B2C Free (Для всех школьников) — 0 ₸</strong>
+                <p style="font-size:12.5px; margin-top:3px;">Полный доступ к симулятору 5 плат, базовым проектам, AI Наставнику и модулю «Практикум».</p>
+              </div>
+              <div style="background:#ffffff; padding:11px 14px; border-radius:12px; border:1px solid var(--pastel-peach-border);">
+                <strong style="color:#2b57c7;">2. B2B / B2G «Школьный STEM-класс» — 15 000 ₸ / мес за школу</strong>
+                <p style="font-size:12.5px; margin-top:3px;">Кабинет учителя, автоматическая проверка домашних схем всего класса, экспорт ведомостей и подготовка к олимпиадам (в 100 раз дешевле закупки железа!).</p>
+              </div>
+              <div style="background:#ffffff; padding:11px 14px; border-radius:12px; border:1px solid var(--pastel-peach-border);">
+                <strong style="color:#5f3dc4;">3. Партнёрства с вузами и технопарками</strong>
+                <p style="font-size:12.5px; margin-top:3px;">Брендированные олимпиадные треки и отбор талантливых ребят из регионов.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer-meta">
+        <span>Слайд 8 • Социальный эффект: равный доступ мальчиков и девочек из регионов к инженерии</span>
+        <span>RoboLab</span>
+      </div>
+    </section>
+
+    <!-- ==================== СЛАЙД 9: ЖИВАЯ ДЕМОНСТРАЦИЯ ПРОДУКТА ==================== -->
+    <section class="slide-card" data-slide="8" data-time="3:30 – 3:50 (20 сек)" data-script="Наш продукт — это не концепт, а <strong>полностью рабочий MVP</strong>, доступный прямо сейчас по публичной ссылке. За 20 секунд демонстрации мы покажем: 1) запуск симуляции мигающего светодиода и сонара на детализированной плате Arduino Uno R3; 2) реакцию схемы на ошибку и подсказку AI Наставника; и 3) прохождение интерактивного урока в «Практикуме»!">
+      <div>
+        <div class="slide-header">
+          <span class="slide-kicker kicker-lavender">8. Демонстрация рабочего MVP</span>
+          <span class="slide-score-tag">Критерий жюри: 10 баллов</span>
+        </div>
+
+        <h2 class="slide-title">Живое демо <span class="grad">RoboLab MVP</span>: 3 сценария за 30 секунд</h2>
+        <p class="slide-subtitle">
+          Члены жюри могут протестировать платформу прямо со своих устройств в 1 клик через «⚡ Быстрый гостевой вход для жюри».
+        </p>
+
+        <div class="grid-3" style="margin-bottom: 22px;">
+          <div class="p-card mint">
+            <div class="stat-big">Шаг 1</div>
+            <h3>Запуск схемы и кода C++</h3>
+            <p>Открываем симулятор, выбираем проект (Blink, Сервопривод SG90 или Радар HC-SR04), нажимаем <strong>«▶ Запустить»</strong> и меняем параметры датчиков прямо на холсте.</p>
+          </div>
+
+          <div class="p-card peach">
+            <div class="stat-big">Шаг 2</div>
+            <h3>Тест ошибки и AI Наставник</h3>
+            <p>Нажимаем кнопку <strong>«⚠️ Тест ошибки»</strong> — видим срабатывание защиты от перегорания и получаем мгновенный разбор ошибки от <strong>AI Наставника</strong>.</p>
+          </div>
+
+          <div class="p-card blue">
+            <div class="stat-big">Шаг 3</div>
+            <h3>Интерактивный «Практикум»</h3>
+            <p>Переходим во вкладку <strong>«🎓 Практикум»</strong>, собираем цепь со светодиодом и резистором 220 Ом на макетке и прокачиваем робота-напарника.</p>
+          </div>
+        </div>
+
+        <div class="p-card lavender" style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div>
+            <h3>🚀 Готовы показать рабочий продукт в действии!</h3>
+            <p>Нажмите кнопку справа, чтобы переключиться в интерфейс лаборатории RoboLab для живого показа жюри.</p>
+          </div>
+          <a href="./index.html" class="ctrl-btn primary" style="padding:13px 24px; font-size:14.5px;">
+            Перейти к Живому Демо RoboLab →
+          </a>
+        </div>
+      </div>
+
+      <div class="slide-footer-meta">
+        <span>Слайд 9 • Полное соответствие требованиям MVP WIT Teens Challenge 2026</span>
+        <span>RoboLab</span>
+      </div>
+    </section>
+
+    <!-- ==================== СЛАЙД 10: КОМАНДА, ДОРОЖНАЯ КАРТА И ВОПРОСЫ ==================== -->
+    <section class="slide-card" data-slide="9" data-time="3:50 – 4:00 (10 сек) + 2:00 Вопросы жюри" data-script="Команда <strong>RoboLab</strong> объединяет разработку, UX-дизайн и страсть к доступному STEM-образованию. Мы верим, что талантливый инженер может вырасти в любом ауле или малом городе, если дать ему правильный инструмент для смелых экспериментов. Спасибо за внимание! Мы с радостью ответим на ваши вопросы!">
+      <div>
+        <div class="slide-header">
+          <span class="slide-kicker kicker-mint">9. Команда, Дорожная карта и Q&amp;A</span>
+          <span class="slide-score-tag">Финал презентации • 2 минуты на ответы жюри</span>
+        </div>
+
+        <h2 class="slide-title"><span class="grad">RoboLab</span> — открываем мир инженерии каждому школьнику!</h2>
+        <p class="slide-subtitle">
+          Соответствие всем требованиям WIT Teens Challenge 2026 и чёткий план развития продукта после финала.
+        </p>
+
+        <div class="grid-2">
+          <div class="p-card blue">
+            <h3>👩‍💻 Наша команда и вклад на хакатоне</h3>
+            <ul style="list-style:none; display:flex; flex-direction:column; gap:9px; margin-top:10px; font-size:13.5px; color:#334155;">
+              <li><strong>• Капитан команды (Product &amp; Frontend Lead):</strong> Архитектура платформы, UI/UX дизайн, разработка интерактивного модуля «Практикум» и защита проекта.</li>
+              <li><strong>• Физический движок и Схемотехника:</strong> Моделирование 16 SVG-компонентов (Uno, Nano, Mega, ESP32, Pico), расчёт Закона Ома и детекция КЗ.</li>
+              <li><strong>• Интерпретатор C++ и AI Наставник:</strong> Парсер кода Arduino, эмуляция периферии и система интеллектуальной диагностики ошибок.</li>
+            </ul>
+          </div>
+
+          <div class="p-card mint">
+            <h3>🗺️ Дорожная карта развития (Roadmap 2026–2027)</h3>
+            <ul style="list-style:none; display:flex; flex-direction:column; gap:9px; margin-top:10px; font-size:13.5px; color:#334155;">
+              <li><strong>✅ Сентябрь 2026 (Хакатон MVP):</strong> 5 плат МК, 11 датчиков, интерпретатор C++, AI Наставник, 2FA-авторизация и игровой «Практикум».</li>
+              <li><strong>🚀 Q4 2026:</strong> Полная локализация на казахский язык (Қазақ тілі) + панель учителя для проверки заданий всего класса.</li>
+              <li><strong>🌐 2027 год:</strong> Совместная сборка схем в реальном времени (Multiplayer Lab) и запуск в 150+ школах Казахстана.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="p-card lavender" style="margin-top: 16px;">
+          <h3>💬 Готовые ответы на возможные вопросы жюри (шпаргалка для защиты):</h3>
+          <div class="grid-3" style="margin-top:8px; gap:12px;">
+            <div style="background:#fff; padding:10px 12px; border-radius:10px; font-size:12px;">
+              <strong>В: Как работает без интернета в селе?</strong><br/>
+              О: Весь движок расчёта цепей и C++ работает локально в браузере (50+ FPS) и после загрузки страницы не требует постоянного канала связи.
+            </div>
+            <div style="background:#fff; padding:10px 12px; border-radius:10px; font-size:12px;">
+              <strong>В: Заменит ли это реальную пайку?</strong><br/>
+              О: RoboLab даёт 90% базы схемотехники и кода без затрат, а когда ученик переходит к реальной плате — он уже не сжигает её.
+            </div>
+            <div style="background:#fff; padding:10px 12px; border-radius:10px; font-size:12px;">
+              <strong>В: Как привлекать первые школы?</strong><br/>
+              О: Бесплатный доступ для учителей информатики и физики + проведение онлайн-олимпиад по схемотехнике на базе нашего «Практикума».
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="slide-footer-meta">
+        <span>Спасибо за внимание! • Команда RoboLab • WIT Teens Challenge 2026</span>
+        <span><a href="./index.html" style="color:#4263eb; font-weight:700; text-decoration:none;">Открыть живой MVP →</a></span>
+      </div>
+    </section>
+
+    <!-- Шпаргалка спикера (телесуфлёр для удобного питча) -->
+    <aside class="speaker-box" id="speakerBox">
+      <div class="speaker-top">
+        <span class="speaker-badge">🎙️ Речь спикера для этого слайда (читайте уверенно и с улыбкой)</span>
+        <span class="speaker-time" id="speakerSlideTime">0:00 – 0:25 (25 сек)</span>
+      </div>
+      <div class="speaker-script" id="speakerScriptText"></div>
+    </aside>
+
+    <!-- Быстрый переключатель номеров слайдов -->
+    <nav class="slide-dots-nav" id="slideDotsNav"></nav>
+
+  </main>
+
+  <script>
+    (function () {
+      const slides = Array.from(document.querySelectorAll(".slide-card"));
+      const counterLabel = document.getElementById("slideCounterLabel");
+      const prevBtn = document.getElementById("prevSlideBtn");
+      const nextBtn = document.getElementById("nextSlideBtn");
+      const dotsNav = document.getElementById("slideDotsNav");
+      const speakerBox = document.getElementById("speakerBox");
+      const speakerScriptText = document.getElementById("speakerScriptText");
+      const speakerSlideTime = document.getElementById("speakerSlideTime");
+      const toggleSpeakerBtn = document.getElementById("toggleSpeakerBtn");
+      const printPdfBtn = document.getElementById("printPdfBtn");
+      const pitchTimerBtn = document.getElementById("pitchTimerBtn");
+      const pitchTimerReadout = document.getElementById("pitchTimerReadout");
+
+      let currentIdx = 0;
+      let speakerVisible = true;
+      let timerSeconds = 240; // 4 минуты по регламенту WIT Teens Challenge 2026
+      let timerInterval = null;
+
+      // Создаём кнопки точек слайдов
+      slides.forEach((_, idx) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "dot-btn" + (idx === 0 ? " active" : "");
+        b.textContent = String(idx + 1);
+        b.addEventListener("click", () => showSlide(idx));
+        dotsNav.appendChild(b);
+      });
+
+      function showSlide(idx) {
+        currentIdx = (idx + slides.length) % slides.length;
+        slides.forEach((s, i) => {
+          s.classList.toggle("active", i === currentIdx);
+        });
+        Array.from(dotsNav.children).forEach((d, i) => {
+          d.classList.toggle("active", i === currentIdx);
+        });
+        counterLabel.textContent = `${currentIdx + 1} / ${slides.length}`;
+
+        const activeSlide = slides[currentIdx];
+        speakerScriptText.innerHTML = activeSlide.getAttribute("data-script") || "";
+        speakerSlideTime.textContent = "⏱ Тайминг: " + (activeSlide.getAttribute("data-time") || "");
+      }
+
+      prevBtn.addEventListener("click", () => showSlide(currentIdx - 1));
+      nextBtn.addEventListener("click", () => showSlide(currentIdx + 1));
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
+          e.preventDefault();
+          showSlide(currentIdx + 1);
+        } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+          e.preventDefault();
+          showSlide(currentIdx - 1);
+        }
+      });
+
+      toggleSpeakerBtn.addEventListener("click", () => {
+        speakerVisible = !speakerVisible;
+        speakerBox.classList.toggle("hidden", !speakerVisible);
+        toggleSpeakerBtn.classList.toggle("active-note", speakerVisible);
+        toggleSpeakerBtn.textContent = speakerVisible
+          ? "🎙️ Шпаргалка спикера: ВКЛ"
+          : "🎙️ Шпаргалка спикера: ВЫКЛ";
+      });
+
+      printPdfBtn.addEventListener("click", () => {
+        window.print();
+      });
+
+      pitchTimerBtn.addEventListener("click", () => {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          timerSeconds = 240;
+          pitchTimerReadout.textContent = "04:00";
+          return;
+        }
+        timerInterval = setInterval(() => {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            const m = String(Math.floor(timerSeconds / 60)).padStart(2, "0");
+            const s = String(timerSeconds % 60).padStart(2, "0");
+            pitchTimerReadout.textContent = `${m}:${s}`;
+          } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+          }
+        }, 1000);
+      });
+
+      showSlide(0);
+    })();
+  </script>
+</body>
+</html>
